@@ -99,3 +99,25 @@ services:
     networks:
       - rasa-network
     restart: unless-stopped
+
+  # Web UI Dashboard
+  web-ui:
+    build:
+      context: ./web-ui
+      dockerfile: Dockerfile
+    container_name: rasa-web-ui
+    ports:
+      - "8002:8002"
+    environment:
+      - PDF_PROCESSOR_URL=http://pdf-processor:8001
+      - RASA_SERVER_URL=http://rasa:5005
+      - CHROMA_HOST=chroma
+      - CHROMA_PORT=8000
+    depends_on:
+      - chroma
+      - redis
+      - pdf-processor
+      - rasa
+    networks:
+      - rasa-network
+    restart: unless-stopped
