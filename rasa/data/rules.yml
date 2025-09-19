@@ -36,3 +36,38 @@ rules:
   steps:
   - intent: clear_knowledge_base
   - action: action_clear_knowledge_base
+
+- rule: Handle product inquiry
+  steps:
+  - intent: product_inquiry
+  - action: action_product_inquiry
+
+- rule: Handle pricing inquiry
+  steps:
+  - intent: pricing_inquiry
+  - action: action_pricing_inquiry
+
+- rule: Handle ingredient questions
+  steps:
+  - intent: ingredient_question
+  - action: action_ingredient_info
+
+- rule: Handle availability questions
+  steps:
+  - intent: availability_question
+  - action: action_availability_info
+
+- rule: Handle professional inquiries
+  steps:
+  - intent: professional_inquiry
+  - action: action_professional_inquiry
+
+- rule: Handle contact information requests
+  steps:
+  - intent: contact_info
+  - action: action_contact_info
+
+- rule: Handle out of scope questions
+  steps:
+  - intent: out_of_scope
+  - action: utter_out_of_scope

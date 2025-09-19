@@ -10,10 +10,22 @@ intents:
   - list_pdfs
   - clear_knowledge_base
   - bot_challenge
+  - product_inquiry
+  - pricing_inquiry
+  - ingredient_question
+  - availability_question
+  - professional_inquiry
+  - contact_info
+  - out_of_scope
 
 entities:
   - question
   - filename
+  - product_name
+  - product_category
+  - product_type
+  - flavor_type
+  - quality_type
 
 slots:
   question:
@@ -36,17 +48,61 @@ slots:
     - type: from_entity
       entity: filename
 
+  product_name:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: product_name
+
+  product_category:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: product_category
+
+  language_preference:
+    type: text
+    influence_conversation: true
+    mappings:
+    - type: custom
+
 responses:
   utter_greet:
-  - text: "Hello! I'm your AI assistant with access to uploaded documents. How can I help you today?"
-  - text: "Hi there! I can answer questions based on your PDF documents. What would you like to know?"
+  - text: "Hello! Welcome to Sipsty. How can I help you today?"
+  - text: "Hi there! I can answer questions about Sipsty beverages. What would you like to know?"
+  - text: "Bonjour ! Bienvenue chez Sipsty. Comment puis-je vous aider aujourd'hui ?"
+  - text: "مرحباً! أهلاً بك في سيبستي. كيف يمكنني مساعدتك اليوم؟"
 
   utter_goodbye:
-  - text: "Goodbye! Feel free to ask me anything about your documents anytime."
-  - text: "See you later! I'll be here when you need information from your PDFs."
+  - text: "Goodbye! Feel free to ask me about Sipsty anytime."
+  - text: "See you later! I'll be here when you need information about Sipsty."
+  - text: "Au revoir ! N'hésitez pas à me poser des questions sur Sipsty."
+  - text: "مع السلامة! لا تتردد في سؤالي عن سيبستي في أي وقت."
 
   utter_ask_question:
-  - text: "What would you like to know? I'll search through your uploaded documents to find the answer."
+  - text: "What would you like to know about Sipsty? I can tell you about products, ingredients, prices, and more."
+
+  utter_out_of_scope:
+  - text: "I am an AI assistant for Sipsty. I can only answer questions related to the company."
+  - text: "Je suis un assistant IA pour Sipsty. Je ne peux répondre qu'aux questions liées à l'entreprise."
+  - text: "أنا مساعد ذكي لشركة سيبستي. يمكنني فقط الإجابة على الأسئلة المتعلقة بالشركة."
+
+  utter_no_information:
+  - text: "I don't know."
+  - text: "Je ne sais pas."
+  - text: "لا أعرف."
+
+  utter_product_info:
+  - text: "Let me find information about that Sipsty product for you."
+  - text: "Permettez-moi de trouver des informations sur ce produit Sipsty."
+  - text: "دعني أجد معلومات عن هذا المنتج من سيبستي."
+
+  utter_pricing_info:
+  - text: "Sipsty products are available in 4-pack format for €3.96 per pack."
+  - text: "Les produits Sipsty sont disponibles en pack de 4 bouteilles pour 3,96€."
+  - text: "منتجات سيبستي متوفرة في عبوة من 4 زجاجات بسعر 3.96 يورو."
 
   utter_iamabot:
   - text: "I am a RAG-powered assistant that can answer questions based on your uploaded PDF documents."
@@ -71,6 +127,12 @@ actions:
   - action_upload_pdf
   - action_list_pdfs
   - action_clear_knowledge_base
+  - action_product_inquiry
+  - action_pricing_inquiry
+  - action_ingredient_info
+  - action_availability_info
+  - action_professional_inquiry
+  - action_contact_info
   - utter_greet
   - utter_goodbye
   - utter_ask_question
@@ -80,6 +142,10 @@ actions:
   - utter_processing_pdf
   - utter_pdf_processed
   - utter_processing_error
+  - utter_out_of_scope
+  - utter_no_information
+  - utter_product_info
+  - utter_pricing_info
 
 session_config:
   session_expiration_time: 60

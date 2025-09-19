@@ -16,6 +16,24 @@ nlu:
     - goodevening
     - good afternoon
     - start
+    - bonjour
+    - salut
+    - bonsoir
+    - bonne journée
+    - comment allez-vous
+    - مرحباً
+    - أهلاً
+    - مساء الخير
+    - صباح الخير
+    - مرحبا بك
+    - السلام عليكم
+    - أهلاً وسهلاً
+    - what's up
+    - howdy
+    - hiya
+    - morning
+    - afternoon
+    - evening
 
 - intent: goodbye
   examples: |
@@ -31,6 +49,21 @@ nlu:
     - see you later
     - stop
     - end
+    - au revoir
+    - à bientôt
+    - bonne nuit
+    - salut
+    - à plus tard
+    - مع السلامة
+    - إلى اللقاء
+    - وداعاً
+    - تصبح على خير
+    - باي
+    - see ya
+    - catch you later
+    - take care
+    - later
+    - gotta go
 
 - intent: affirm
   examples: |
@@ -85,6 +118,27 @@ nlu:
     - Find content related to [business analysis](question)
     - Tell me about [requirements gathering](question)
     - What are the guidelines for [testing](question)?
+    - Tell me about [Sipsty](question)
+    - What are [Sipsty products](question)?
+    - How much does [Sipsty cost](question)?
+    - What ingredients are in [Cola Sipsty](question)?
+    - Is [Bellini](question) vegan?
+    - Where can I buy [Sipsty drinks](question)?
+    - What flavors does [Sipsty](question) have?
+    - Are [Sipsty beverages](question) natural?
+    - Tell me about [Sipsty classics](question)
+    - What are [Sipsty signatures](question)?
+    - How many calories in [Sipsty](question)?
+    - What makes [Sipsty](question) different?
+    - When was [Sipsty](question) founded?
+    - Are [Sipsty bottles](question) recyclable?
+    - How long does [Sipsty](question) last after opening?
+    - Is [Sipsty](question) suitable for kids?
+    - What is the [4-pack](question) format?
+    - Parlez-moi de [Sipsty](question)
+    - Quels sont les [produits Sipsty](question)?
+    - أخبرني عن [سيبستي](question)
+    - ما هي [منتجات سيبستي](question)?
 
 - intent: upload_pdf
   examples: |
@@ -129,3 +183,190 @@ nlu:
     - what are you?
     - who are you?
     - are you real?
+
+- intent: product_inquiry
+  examples: |
+    - Tell me about your [Cola Sipsty](product_name)
+    - What is [Bellini](product_name)?
+    - I want to know about [Girly](product_name)
+    - What's in the [classics](product_category) range?
+    - Show me your [signatures](product_category) collection
+    - What [cola](product_type) do you have?
+    - Do you have [tropical](flavor_type) flavors?
+    - What are your [premium](quality_type) drinks?
+    - Tell me about [Cola Cherry](product_name)
+    - What is [Blue Hawaii](product_name)?
+    - Describe [Piña Colada](product_name)
+    - What's [Punchy](product_name) like?
+    - Tell me about [Lady](product_name)
+    - Show me [Baby](product_name)
+    - What is [Lilly](product_name)?
+    - Describe [Breeze](product_name)
+    - Tell me about [Smash](product_name)
+    - What's [Diabolo Grenadine](product_name)?
+    - Describe [Strawberry Daiquiri](product_name)
+    - Parlez-moi du [Cola Sipsty](product_name)
+    - Qu'est-ce que [Bellini](product_name)?
+    - أخبرني عن [كولا سيبستي](product_name)
+    - ما هو [بيليني](product_name)?
+    - ما هي [مجموعة الكلاسيكية](product_category)؟
+
+- intent: pricing_inquiry  
+  examples: |
+    - How much does Sipsty cost?
+    - What's the price?
+    - How much for a 4-pack?
+    - What are your prices?
+    - Cost of Sipsty drinks?
+    - Price per pack?
+    - How much is it?
+    - What does it cost?
+    - Pricing information?
+    - How expensive is Sipsty?
+    - What's the cost of one pack?
+    - 4 bottles price?
+    - How much is 3.96 euros?
+    - Affordable drinks?
+    - Combien ça coûte?
+    - Quel est le prix?
+    - Prix des boissons?
+    - Prix du pack de 4?
+    - كم السعر؟
+    - كم تكلفة المشروبات؟
+    - ما هو السعر؟
+    - سعر العبوة؟
+
+- intent: ingredient_question
+  examples: |
+    - What ingredients are in Sipsty?
+    - Is it natural?
+    - Does it contain sugar?
+    - Are your drinks vegan?
+    - What's inside?
+    - Ingredients list?
+    - Is it organic?
+    - Any artificial sweeteners?
+    - What makes it natural?
+    - Are there preservatives?
+    - Gluten free?
+    - Allergen information?
+    - Nutritional info?
+    - Calories content?
+    - Sugar content?
+    - Is it healthy?
+    - Natural flavors?
+    - No aspartame?
+    - Low calorie?
+    - Fruit flavors?
+    - Quels ingrédients?
+    - C'est naturel?
+    - Contient du sucre?
+    - Vegan friendly?
+    - Sans aspartame?
+    - ما هي المكونات؟
+    - هل طبيعي؟
+    - هل يحتوي سكر؟
+    - هل نباتي؟
+
+- intent: availability_question
+  examples: |
+    - Where can I buy Sipsty?
+    - Where is it available?
+    - Which stores sell Sipsty?
+    - How to get Sipsty?
+    - Where to find it?
+    - Available near me?
+    - Which retailers?
+    - Online purchase?
+    - Store locations?
+    - Distribution points?
+    - Can I buy online?
+    - European availability?
+    - Partner stores?
+    - Where to shop?
+    - How to order?
+    - Où acheter?
+    - Où trouver Sipsty?
+    - Magasins partenaires?
+    - Achat en ligne?
+    - أين يمكنني الشراء؟
+    - أين متوفر؟
+    - أين أجده؟
+
+- intent: professional_inquiry
+  examples: |
+    - I'm a retailer interested in Sipsty
+    - Professional partnership
+    - Business inquiry
+    - Wholesale information
+    - I own a restaurant
+    - HoReCa services
+    - Distribution partnership
+    - Business opportunities
+    - Professional services
+    - Retailer information
+    - I want to sell Sipsty
+    - Commercial partnership
+    - Restaurant partnership
+    - Hotel services
+    - Café distribution
+    - Bar partnership
+    - Je suis professionnel
+    - Partenariat commercial
+    - Je suis restaurateur
+    - Services HoReCa
+    - أنا صاحب مطعم
+    - شراكة تجارية
+    - أعمل في المطاعم
+
+- intent: contact_info
+  examples: |
+    - How to contact you?
+    - Contact information?
+    - Customer service?
+    - Your website?
+    - Social media?
+    - Email address?
+    - Phone number?
+    - How to reach you?
+    - Contact details?
+    - Support contact?
+    - Instagram account?
+    - TikTok page?
+    - Facebook page?
+    - YouTube channel?
+    - Official website?
+    - Comment vous contacter?
+    - Service client?
+    - Votre site web?
+    - كيف أتواصل معكم؟
+    - خدمة العملاء؟
+    - موقعكم الإلكتروني؟
+
+- intent: out_of_scope
+  examples: |
+    - What's the weather like?
+    - Tell me about cars
+    - How to cook pasta?
+    - What's the capital of France?
+    - Movie recommendations?
+    - Sports news?
+    - Stock market prices?
+    - Recipe for pizza?
+    - Travel advice?
+    - How to fix my computer?
+    - Best restaurants nearby?
+    - Political news?
+    - Celebrity gossip?
+    - Math problems?
+    - Programming help?
+    - Medical advice?
+    - Legal questions?
+    - Educational courses?
+    - Job hunting tips?
+    - Dating advice?
+    - Football scores?
+    - Video games?
+    - Shopping for clothes?
+    - Book recommendations?
+    - Music playlists?

@@ -55,3 +55,77 @@ stories:
   - action: action_answer_question
   - intent: goodbye
   - action: utter_goodbye
+
+- story: product discovery
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: product_inquiry
+  - action: action_product_inquiry
+  - intent: pricing_inquiry
+  - action: action_pricing_inquiry
+
+- story: ingredient concerns
+  steps:
+  - intent: ingredient_question
+  - action: action_ingredient_info
+  - intent: ask_question
+  - action: action_answer_question
+
+- story: professional inquiry flow
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: professional_inquiry
+  - action: action_professional_inquiry
+  - intent: contact_info
+  - action: action_contact_info
+
+- story: availability check
+  steps:
+  - intent: availability_question
+  - action: action_availability_info
+  - intent: contact_info
+  - action: action_contact_info
+
+- story: out of scope handling
+  steps:
+  - intent: out_of_scope
+  - action: utter_out_of_scope
+  - intent: greet
+  - action: utter_greet
+
+- story: product then ingredients
+  steps:
+  - intent: product_inquiry
+  - action: action_product_inquiry
+  - intent: ingredient_question
+  - action: action_ingredient_info
+  - intent: goodbye
+  - action: utter_goodbye
+
+- story: multilingual customer journey
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: product_inquiry
+  - action: action_product_inquiry
+  - intent: pricing_inquiry
+  - action: action_pricing_inquiry
+  - intent: availability_question
+  - action: action_availability_info
+
+- story: comprehensive sipsty inquiry
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: ask_question
+  - action: action_answer_question
+  - intent: product_inquiry
+  - action: action_product_inquiry
+  - intent: ingredient_question
+  - action: action_ingredient_info
+  - intent: pricing_inquiry
+  - action: action_pricing_inquiry
+  - intent: goodbye
+  - action: utter_goodbye
