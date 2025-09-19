@@ -1,13 +1,54 @@
-# 🤖 Rasa RAG Chatbot with PDF Knowledge Base
+# � Sipsty RAG Chatbot - Multilingual Online Store Assistant
 
-> **Status: ✅ FULLY OPERATIONAL** - A complete Retrieval-Augmented Generation (RAG) chatbot built with Rasa that intelligently answers questions based on your uploaded PDF documents.
+> **Status: ✅ FULLY OPERATIONAL** - A complete Retrieval-Augmented Generation (RAG) chatbot built with Rasa for Sipsty beverages. This is an **example implementation** of a multilingual online store chatbot supporting **English, French, and Arabic** languages.
 
-## 🌟 Features
+## 🌟 Project Overview
+
+This project demonstrates how to build a sophisticated **multilingual e-commerce chatbot** for an online beverage store. It showcases:
+
+- 🌍 **Multilingual Support**: Native English, French, and Arabic conversation handling
+- 🛒 **Product Inquiries**: Smart product discovery and information retrieval
+- 💰 **Pricing Information**: Automated pricing and availability responses  
+- 🥗 **Ingredient Questions**: Natural, vegan, and dietary information handling
+- 🏢 **Business Inquiries**: Professional partnership and B2B communication
+- 📱 **Web Dashboard**: Complete management interface with real-time monitoring
+
+## 🎯 **Sipsty Business Context**
+
+**Sipsty** is a premium beverage company specializing in natural, elegant, and creative sparkling drinks:
+
+- **Product Lines**: Classics (70s-inspired) and Signatures (exclusive creations)
+- **Key Products**: Cola Sipsty, Bellini, Girly, Punchy, Blue Hawaii, Piña Colada, and more
+- **Values**: 100% Natural, Vegan-Friendly, Low-Calorie, Premium Quality
+- **Markets**: Europe-wide distribution with multilingual customer support
+- **Format**: 4-pack bottles (€3.96 per pack)
+
+## 🌐 **Web Management Dashboard**
+
+Access the complete management interface at: **http://localhost:8002**
+
+### **Dashboard Features:**
+- 📊 **System Status**: Real-time health monitoring of all services
+- 📁 **Document Management**: Upload and manage PDF knowledge base
+- 🗂️ **Collection Viewer**: Browse ChromaDB vector database collections  
+- 💬 **Chat Interface**: Test conversations directly in the browser
+- 🔍 **Search Functionality**: Query your document database visually
+- 📈 **Service Monitoring**: Track all 6 running containers status
+
+### **Multilingual Interface:**
+The web UI automatically detects and responds in the user's language:
+- **English**: Professional, innovation-focused responses
+- **French**: Elegant and sophisticated communication style  
+- **Arabic**: Culturally-aware responses with proper RTL support
+
+## 🌟 Core Features
 
 - ✅ **External LLM Integration** - Uses OpenRouter DeepSeek Chat v3.1 Free model
 - ✅ **PDF Document Processing** - Automatic text extraction and intelligent chunking
 - ✅ **Vector Search** - ChromaDB for semantic similarity search
 - ✅ **Conversational Interface** - Natural language interaction via Rasa
+- ✅ **Web Management UI** - Complete dashboard at port 8002
+- ✅ **Multilingual Support** - English, French, and Arabic languages
 - ✅ **RESTful APIs** - Easy integration with other applications
 - ✅ **Persistent Storage** - Documents and embeddings stored locally
 - ✅ **Multi-Document Support** - Handle multiple PDFs simultaneously
@@ -17,19 +58,21 @@
 
 ## 🏗 System Architecture
 
-The system consists of 5 Docker services working together:
+The system consists of **6 Docker services** working together:
 
 ### Core Services
-- **Rasa Core** (Port 5005): Conversational AI engine
+- **Rasa Core** (Port 5005): Conversational AI engine with multilingual support
 - **Action Server** (Port 5055): Custom RAG actions with DeepSeek LLM integration
-- **PDF Processor** (Port 8001): Document processing and embedding service
-- **ChromaDB** (Port 8000): Vector database for embeddings
+- **PDF Processor** (Port 8000): Document processing and embedding service
+- **ChromaDB** (Port 8003): Vector database for embeddings
 - **Redis** (Port 6379): Caching and session storage
+- **Web UI Dashboard** (Port 8002): Management interface with real-time monitoring
 
 ### Technologies Stack
-- **Rasa 3.6.20-full**: Conversational AI framework
+- **Rasa 3.6.20-full**: Conversational AI framework with multilingual NLU
 - **ChromaDB 0.4.15**: Vector database for similarity search
-- **FastAPI**: PDF processing REST API
+- **FastAPI**: PDF processing REST API and web dashboard backend
+- **Bootstrap 5**: Responsive web UI framework
 - **OpenRouter DeepSeek API**: External LLM for intelligent answer generation
 - **sentence-transformers**: Self-hosted embedding models
 - **Redis 7**: High-performance caching
@@ -161,36 +204,85 @@ cd /Users/Yassine/Desktop/rasa
 # Configure OpenRouter API key (REQUIRED)
 # Edit .env file and add: DEEPSEEK_API_KEY=your_openrouter_api_key_here
 
-# Start all services (first run downloads embedding models ~180MB)
+# Start all services with Web UI (recommended)
+./start-with-ui.sh
+
+# OR start manually with docker-compose
 docker-compose up --build -d
 
-# Check all services are running
+# Check all services are running (should show 6 containers)
 docker-compose ps
 
 # Run system health check
 ./test-system.sh
 ```
 
-### 3. Upload Your First PDF
+### 3. Access Web Dashboard 🌟
 ```bash
-# Upload a PDF document
-curl -X POST "http://localhost:8001/upload-pdf" \
-     -H "accept: application/json" \
-     -H "Content-Type: multipart/form-data" \
-     -F "file=@/path/to/your/document.pdf"
+# Open the Web Management Dashboard
+open http://localhost:8002
 
-# Check processing status
-curl "http://localhost:8001/documents"
+# Or visit directly in your browser:
+# http://localhost:8002
 ```
 
-### 4. Start Chatting
+**Dashboard Features:**
+- 📊 System status monitoring
+- 📁 Document upload and management
+- 💬 Interactive chat interface
+- 🗂️ Vector database exploration
+- 🌍 Multilingual conversation testing
+
+### 4. Upload Your First PDF
 ```bash
-# Interactive chat in terminal (recommended for testing)
+# Method 1: Via Web Dashboard (Recommended)
+# 1. Open http://localhost:8002
+# 2. Go to "Document Management" tab
+# 3. Drag & drop your PDF files
+
+# Method 2: Via API
+curl -X POST "http://localhost:8000/upload-pdf" \
+     -H "accept: application/json" \
+     -H "Content-Type: multipart/form-data" \
+     -F "file=@/path/to/your/sipsty-document.pdf"
+
+# Check processing status
+curl "http://localhost:8000/documents"
+```
+
+### 5. Test Multilingual Conversations
+```bash
+# Method 1: Via Web Dashboard (Recommended)
+# 1. Open http://localhost:8002
+# 2. Use the chat interface in any language:
+#    English: "Hello, tell me about Sipsty products"
+#    French: "Bonjour, parlez-moi des produits Sipsty"
+#    Arabic: "مرحباً، أخبرني عن منتجات سيبستي"
+
+# Method 2: Interactive terminal chat
 python3 chat.py
 
-# Or via API directly
+# Method 3: Direct API testing
+# English conversation
 curl -X POST "http://localhost:5005/webhooks/rest/webhook" \
      -H "Content-Type: application/json" \
+     -d '{"sender": "user", "message": "Hello, what Sipsty products do you have?"}'
+
+# French conversation  
+curl -X POST "http://localhost:5005/webhooks/rest/webhook" \
+     -H "Content-Type: application/json" \
+     -d '{"sender": "user", "message": "Bonjour, quels produits Sipsty avez-vous?"}'
+
+# Arabic conversation
+curl -X POST "http://localhost:5005/webhooks/rest/webhook" \
+     -H "Content-Type: application/json" \
+     -d '{"sender": "user", "message": "مرحباً، ما هي منتجات سيبستي المتوفرة؟"}'
+```
+
+**Example Conversations to Try:**
+- 🇺🇸 **English**: "What ingredients are in Cola Sipsty?" / "How much does a 4-pack cost?"
+- 🇫🇷 **French**: "Quels sont les ingrédients du Cola Sipsty?" / "Combien coûte un pack de 4?"
+- 🇸🇦 **Arabic**: "ما مكونات كولا سيبستي؟" / "كم سعر العبوة من 4 زجاجات؟" \
      -d '{"sender": "user", "message": "Hello! What can you tell me about the uploaded document?"}'
 ```
 
@@ -251,7 +343,37 @@ python3 chat.py              # Start chatting
 ./stop.sh                    # Clean shutdown when done
 ```
 
-## 🎯 Usage Guide
+## � **Multilingual Training Data**
+
+This project includes comprehensive **multilingual training data** specifically designed for Sipsty:
+
+### **📚 Training Data Structure**
+- **17 Total Intents**: Including 8 new Sipsty-specific intents
+- **300+ Training Examples**: Across English, French, and Arabic languages
+- **7 Entities**: Product names, categories, and business contexts
+- **15+ Conversation Stories**: Real customer journey scenarios
+
+### **🎯 Sipsty-Specific Intents**
+1. **`product_inquiry`** - Ask about specific products (Cola Sipsty, Bellini, Girly, etc.)
+2. **`pricing_inquiry`** - Questions about €3.96 pricing and 4-pack format
+3. **`ingredient_question`** - Natural, vegan, low-calorie ingredient queries
+4. **`availability_question`** - Store locations, distribution, online purchase
+5. **`professional_inquiry`** - HoReCa partnerships, retailer information
+6. **`contact_info`** - Website, social media, customer service contacts
+7. **`out_of_scope`** - Proper handling of non-Sipsty related questions
+
+### **🏷️ Multilingual Entity Recognition**
+- **Product Names**: Cola Sipsty, Bellini, Girly, Punchy, Lady, Baby, etc.
+- **Categories**: Classics vs Signatures product lines
+- **Languages**: Automatic detection and appropriate cultural responses
+- **Business Context**: Professional inquiries vs consumer questions
+
+### **🗣️ Cultural Adaptation**
+- **English**: Focus on innovation, quality, and premium positioning
+- **French**: Emphasis on elegance, sophistication, and artisanal craftsmanship  
+- **Arabic**: Cultural sensitivity for consumption occasions and family preferences
+
+## �🎯 Usage Guide
 ```
 ```
 
