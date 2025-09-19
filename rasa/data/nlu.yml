@@ -1,0 +1,131 @@
+version: "3.1"
+
+nlu:
+- intent: greet
+  examples: |
+    - hey
+    - hello
+    - hi
+    - hello there
+    - good morning
+    - good evening
+    - hey there
+    - let's go
+    - hey dude
+    - goodmorning
+    - goodevening
+    - good afternoon
+    - start
+
+- intent: goodbye
+  examples: |
+    - cu
+    - good by
+    - cee you later
+    - good night
+    - bye
+    - goodbye
+    - have a nice day
+    - see you around
+    - bye bye
+    - see you later
+    - stop
+    - end
+
+- intent: affirm
+  examples: |
+    - yes
+    - y
+    - indeed
+    - of course
+    - that sounds good
+    - correct
+    - absolutely
+    - sure
+    - right
+    - yep
+    - yeah
+    - true
+    - ok
+    - okay
+
+- intent: deny
+  examples: |
+    - no
+    - n
+    - never
+    - I don't think so
+    - don't like that
+    - no way
+    - not really
+    - nope
+    - not interested
+    - false
+    - incorrect
+
+- intent: ask_question
+  examples: |
+    - What does the document say about [artificial intelligence](question)?
+    - Can you tell me about [machine learning](question)?
+    - What information is available about [neural networks](question)?
+    - I need to know about [deep learning](question)
+    - Find information about [data science](question)
+    - What are the details on [python programming](question)?
+    - Tell me about [software development](question)
+    - What does it say about [project management](question)?
+    - Can you explain [cloud computing](question)?
+    - I want to learn about [cybersecurity](question)
+    - What is mentioned about [blockchain](question)?
+    - Find details about [web development](question)
+    - Tell me more about [database management](question)
+    - What information do you have on [mobile development](question)?
+    - Can you search for [user interface design](question)?
+    - I'm looking for information about [quality assurance](question)
+    - What does the document mention about [DevOps](question)?
+    - Find content related to [business analysis](question)
+    - Tell me about [requirements gathering](question)
+    - What are the guidelines for [testing](question)?
+
+- intent: upload_pdf
+  examples: |
+    - I want to upload a PDF
+    - Can I upload a document?
+    - I have a PDF to add
+    - Let me upload a file
+    - Add a new document
+    - I need to upload a PDF file
+    - Can you process a new document?
+    - I want to add a PDF to the knowledge base
+    - Upload document
+    - Add file
+
+- intent: list_pdfs
+  examples: |
+    - What documents do you have?
+    - List all PDFs
+    - Show me the uploaded files
+    - What files are available?
+    - Which documents can I ask about?
+    - Show uploaded documents
+    - List knowledge base
+    - What's in your database?
+
+- intent: clear_knowledge_base
+  examples: |
+    - Clear all documents
+    - Delete all PDFs
+    - Remove all files
+    - Clear the knowledge base
+    - Reset the database
+    - Start fresh
+    - Remove everything
+
+- intent: bot_challenge
+  examples: |
+    - are you a bot?
+    - are you a human?
+    - am I talking to a bot?
+    - am I talking to a human?
+    - what are you?
+    - who are you?
+    - are you real?

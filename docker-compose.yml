@@ -1,0 +1,101 @@
+version: "3.9"
+
+networks:
+  rasa-network:
+    driver: bridge
+
+volumes:
+  chroma_data:
+  redis_data:
+  pdf_uploads:
+
+services:
+  # Vector Database for document embeddings
+  chroma:
+    image: ghcr.io/chroma-core/chroma:0.4.15
+    container_name: chroma-db
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - PERSIST_DIRECTORY=/chroma/chroma
+      - ANONYMIZED_TELEMETRY=FALSE
+    networks:
+      - rasa-network
+    restart: unless-stopped
+
+  # Redis for caching and session storage
+  redis:
+    image: redis:7-alpine
+    container_name: redis-cache
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - rasa-network
+    restart: unless-stopped
+
+  # PDF Processing Service
+  pdf-processor:
+    build:
+      context: ./pdf-processor
+      dockerfile: Dockerfile
+    container_name: pdf-processor
+    ports:
+      - "8001:8001"
+    volumes:
+      - pdf_uploads:/app/uploads
+    environment:
+      - CHROMA_HOST=chroma
+      - CHROMA_PORT=8000
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - chroma
+      - redis
+    networks:
+      - rasa-network
+    restart: unless-stopped
+
+  # Rasa Action Server
+  action-server:
+    build:
+      context: ./actions
+      dockerfile: Dockerfile
+    container_name: rasa-action-server
+    ports:
+      - "5055:5055"
+    environment:
+      - CHROMA_HOST=chroma
+      - CHROMA_PORT=8000
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PDF_PROCESSOR_HOST=pdf-processor
+      - PDF_PROCESSOR_PORT=8001
+    depends_on:
+      - chroma
+      - redis
+      - pdf-processor
+    networks:
+      - rasa-network
+    restart: unless-stopped
+
+  # Rasa Server
+  rasa:
+    image: rasa/rasa:3.6.20-full
+    container_name: rasa-server
+    command: run --enable-api --cors "*" --debug --endpoints endpoints.yml
+    ports:
+      - "5005:5005"
+    volumes:
+      - ./rasa:/app
+    environment:
+      - ACTION_ENDPOINT_URL=http://action-server:5055/webhook
+    depends_on:
+      - action-server
+    networks:
+      - rasa-network
+    restart: unless-stopped

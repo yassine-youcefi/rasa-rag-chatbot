@@ -1,0 +1,86 @@
+version: "3.1"
+
+intents:
+  - greet
+  - goodbye
+  - affirm
+  - deny
+  - ask_question
+  - upload_pdf
+  - list_pdfs
+  - clear_knowledge_base
+  - bot_challenge
+
+entities:
+  - question
+  - filename
+
+slots:
+  question:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: question
+  
+  context:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: custom
+
+  filename:
+    type: text
+    influence_conversation: false
+    mappings:
+    - type: from_entity
+      entity: filename
+
+responses:
+  utter_greet:
+  - text: "Hello! I'm your AI assistant with access to uploaded documents. How can I help you today?"
+  - text: "Hi there! I can answer questions based on your PDF documents. What would you like to know?"
+
+  utter_goodbye:
+  - text: "Goodbye! Feel free to ask me anything about your documents anytime."
+  - text: "See you later! I'll be here when you need information from your PDFs."
+
+  utter_ask_question:
+  - text: "What would you like to know? I'll search through your uploaded documents to find the answer."
+
+  utter_iamabot:
+  - text: "I am a RAG-powered assistant that can answer questions based on your uploaded PDF documents."
+
+  utter_ask_rephrase:
+  - text: "I'm not sure I understand. Could you rephrase your question?"
+
+  utter_no_documents:
+  - text: "I don't have any documents to search through. Please upload some PDFs first."
+
+  utter_processing_pdf:
+  - text: "I'm processing your PDF document. This may take a moment..."
+
+  utter_pdf_processed:
+  - text: "PDF processed successfully! You can now ask questions about its content."
+
+  utter_processing_error:
+  - text: "Sorry, there was an error processing your PDF. Please try again."
+
+actions:
+  - action_answer_question
+  - action_upload_pdf
+  - action_list_pdfs
+  - action_clear_knowledge_base
+  - utter_greet
+  - utter_goodbye
+  - utter_ask_question
+  - utter_iamabot
+  - utter_ask_rephrase
+  - utter_no_documents
+  - utter_processing_pdf
+  - utter_pdf_processed
+  - utter_processing_error
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true

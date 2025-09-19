@@ -1,0 +1,57 @@
+version: "3.1"
+
+stories:
+- story: happy path
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: ask_question
+  - action: action_answer_question
+
+- story: question without greeting
+  steps:
+  - intent: ask_question
+  - action: action_answer_question
+
+- story: upload pdf flow
+  steps:
+  - intent: upload_pdf
+  - action: action_upload_pdf
+
+- story: list documents
+  steps:
+  - intent: list_pdfs
+  - action: action_list_pdfs
+
+- story: clear knowledge base
+  steps:
+  - intent: clear_knowledge_base
+  - action: action_clear_knowledge_base
+
+- story: say goodbye
+  steps:
+  - intent: goodbye
+  - action: utter_goodbye
+
+- story: bot challenge
+  steps:
+  - intent: bot_challenge
+  - action: utter_iamabot
+
+- story: greet and goodbye
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: goodbye
+  - action: utter_goodbye
+
+- story: interactive_story_1
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: ask_question
+  - action: action_answer_question
+  - intent: ask_question
+  - action: action_answer_question
+  - intent: goodbye
+  - action: utter_goodbye
