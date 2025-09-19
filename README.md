@@ -86,43 +86,61 @@ curl -X POST "http://localhost:5005/webhooks/rest/webhook" \
 
 ```
 rasa/
-├── docker-compose.yml         # Service orchestration
-├── .env                       # Environment configuration  
-├── .env.example              # Production configuration template
-├── README.md                 # This file
-├── test-system.sh           # Comprehensive system testing
-├── SYSTEM_STATUS.md         # Detailed system status
+├── docker-compose.yml         # 🐳 Service orchestration
+├── .env                       # ⚙️ Environment configuration  
+├── .env.example              # 📋 Production configuration template
+├── .gitignore                # 🚫 Git ignore rules
+├── README.md                 # 📖 Complete documentation (this file)
 ├──
-├── rasa/                    # Rasa chatbot configuration
-│   ├── domain.yml          # Bot capabilities and responses
-│   ├── config.yml          # ML pipeline configuration
-│   ├── endpoints.yml       # Service endpoints
-│   ├── nlu.yml            # Natural language understanding
-│   ├── stories.yml        # Conversation flows
-│   └── rules.yml          # Conversation rules
+├── rasa/                     # 💬 Rasa chatbot configuration
+│   ├── domain.yml           # 🤖 Bot capabilities and responses
+│   ├── config.yml           # 🔧 ML pipeline configuration
+│   ├── endpoints.yml        # 🔗 Service endpoints
+│   ├── nlu.yml             # 🧠 Natural language understanding (training data)
+│   ├── stories.yml         # 📚 Conversation flows (training data)  
+│   └── rules.yml           # ⚖️ Conversation rules (training data)
 ├──
-├── actions/                 # Custom action server
-│   ├── Dockerfile          # Action server container
-│   ├── requirements.txt    # Python dependencies
-│   └── actions.py          # RAG functionality implementation
+├── actions/                  # 🎯 Custom action server
+│   ├── Dockerfile           # 🐳 Action server container
+│   ├── requirements.txt     # 📦 Python dependencies
+│   └── actions.py           # 🔍 RAG functionality implementation
 ├──
-├── pdf-processor/          # Document processing service
-│   ├── Dockerfile          # Processor container
-│   ├── requirements.txt    # Python dependencies
-│   ├── main.py            # FastAPI server with all endpoints
-│   ├── pdf_utils.py       # PDF text extraction utilities
-│   └── embeddings.py      # Vector embeddings management
+├── pdf-processor/           # 📄 Document processing service
+│   ├── Dockerfile           # 🐳 Processor container
+│   ├── requirements.txt     # 📦 Python dependencies
+│   ├── main.py             # 🚀 FastAPI server with all endpoints
+│   ├── pdf_processor.py    # 📝 PDF text extraction utilities
+│   └── embeddings.py       # 🧮 Vector embeddings management
 ├──
-├── deployment/             # Production deployment scripts
-│   ├── start.sh           # System startup
-│   ├── stop.sh           # System shutdown
-│   └── backup.sh         # Data backup utilities
-├──
-├── sample-docs/           # Test documents and examples
-│   ├── README.md         # Testing instructions
-│   └── test_sample.txt   # Sample test document
+├── start.sh                 # ▶️ Quick system startup script
+├── stop.sh                  # ⏹️ Quick system shutdown script
+├── test-system.sh          # 🧪 Health check and system testing
+├── upload-and-test.sh      # 📤 PDF upload and testing script
+├── chat.py                 # 💬 Interactive chat client
 └──
-└── logs/                 # Application logs (created at runtime)
+└── logs/                   # 📊 Application logs (created at runtime)
+```
+
+### 🛠 Utility Scripts
+
+The project includes several utility scripts to help manage your RAG chatbot system:
+
+- **`start.sh`** - ▶️ Quick system startup (builds and starts all services)
+- **`stop.sh`** - ⏹️ Clean system shutdown (stops all services and containers)
+- **`test-system.sh`** - 🧪 Comprehensive health check and system validation
+- **`upload-and-test.sh`** - 📤 Automated PDF upload and testing demonstration
+- **`chat.py`** - 💬 Interactive terminal chat client for easy conversation testing
+
+```bash
+# Quick start commands
+./start.sh                    # Start the entire system
+./test-system.sh             # Verify everything is working
+python3 chat.py              # Start chatting
+./stop.sh                    # Clean shutdown when done
+```
+
+## 🎯 Usage Guide
+```
 ```
 
 ## 🎯 Usage Guide
@@ -409,12 +427,31 @@ export REDIS_HOST=external-redis-server.com
 # ✅ All services running
 ```
 
+### Creating Test Documents
+
+Since you'll need PDF documents for testing, here are some quick ways to create test files:
+
+```bash
+# Create a simple text file and convert to PDF (macOS/Linux)
+echo "This is a test document for the RAG chatbot system. 
+It contains information about artificial intelligence and machine learning.
+The system can answer questions about the content in this document." > test.txt
+
+# Convert to PDF using system tools
+# macOS: textutil -convert rtf test.txt -output test.rtf && textutil -convert pdf test.rtf
+# Linux: pandoc test.txt -o test.pdf
+# Or use online converters like pdf24.org or smallpdf.com
+
+# Alternatively, save any webpage as PDF using your browser
+# Or download research papers from arxiv.org, papers with abstracts work well
+```
+
 ### Manual Testing Scenarios
 
 #### Scenario 1: Single Document Upload & Query
 ```bash
-# 1. Upload test document
-curl -X POST -F "file=@test_sample.txt" http://localhost:8001/upload-pdf
+# 1. Upload test document (replace with your PDF file)
+curl -X POST -F "file=@your-document.pdf" http://localhost:8001/upload-pdf
 
 # 2. Wait for processing (check status)
 curl http://localhost:8001/documents
@@ -454,8 +491,8 @@ def test_full_workflow():
     health = requests.get("http://localhost:8001/health")
     assert health.json()["status"] == "healthy"
     
-    # 2. Upload document
-    with open("test_sample.txt", "rb") as f:
+    # 2. Upload document (replace with your PDF file)
+    with open("your-document.pdf", "rb") as f:
         upload = requests.post("http://localhost:8001/upload-pdf", 
                               files={"file": f})
     assert upload.status_code == 200
