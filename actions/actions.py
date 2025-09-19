@@ -7,7 +7,6 @@ import logging
 import os
 import redis
 import json
-import asyncio
 
 logger = logging.getLogger(__name__)
 

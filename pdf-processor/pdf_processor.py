@@ -1,5 +1,4 @@
 import PyPDF2
-import os
 import logging
 from typing import List
 

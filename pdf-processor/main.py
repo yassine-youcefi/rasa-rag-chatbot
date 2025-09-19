@@ -1,17 +1,17 @@
+import asyncio
+import logging
+import os
+import uuid
+from typing import List, Dict, Any
+
+import aiofiles
+import chromadb
+import redis
 from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks
 from fastapi.responses import JSONResponse
-import chromadb
-from chromadb.config import Settings
-import redis
-import os
-import logging
-import uuid
-import aiofiles
-from typing import List, Dict, Any
+
 from pdf_processor import PDFProcessor
 from embeddings import EmbeddingManager
-import httpx
-import asyncio
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
