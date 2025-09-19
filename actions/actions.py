@@ -8,6 +8,9 @@ import os
 import redis
 import json
 
+# Import DeepSeek LLM generator
+from deepseek_generator import create_deepseek_generator
+
 logger = logging.getLogger(__name__)
 
 # Configuration
@@ -15,6 +18,10 @@ PDF_PROCESSOR_HOST = os.getenv("PDF_PROCESSOR_HOST", "localhost")
 PDF_PROCESSOR_PORT = int(os.getenv("PDF_PROCESSOR_PORT", "8001"))
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost") 
 REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
+USE_LLM = os.getenv("LLM_TYPE", "").lower() == "deepseek_api"
+MAX_SEARCH_RESULTS = int(os.getenv("MAX_SEARCH_RESULTS", "5"))
+MAX_RELEVANT_SENTENCES = int(os.getenv("MAX_RELEVANT_SENTENCES", "2"))
+CONTEXT_SUMMARY_WORDS = int(os.getenv("CONTEXT_SUMMARY_WORDS", "100"))
 
 # Initialize Redis client
 try:
@@ -23,6 +30,16 @@ try:
 except Exception as e:
     logger.error(f"Failed to initialize Redis: {e}")
     redis_client = None
+
+# Initialize DeepSeek LLM generator if enabled
+deepseek_generator = None
+if USE_LLM:
+    try:
+        deepseek_generator = create_deepseek_generator()
+        logger.info("DeepSeek LLM generator initialized")
+    except Exception as e:
+        logger.error(f"Failed to initialize DeepSeek generator: {e}")
+        deepseek_generator = None
 
 class ActionAnswerQuestion(Action):
     """Custom action to answer questions using RAG"""
@@ -49,7 +66,7 @@ class ActionAnswerQuestion(Action):
                 # Search for relevant documents
                 search_response = await client.get(
                     f"http://{PDF_PROCESSOR_HOST}:{PDF_PROCESSOR_PORT}/search",
-                    params={"query": user_message, "max_results": 3}
+                    params={"query": user_message, "max_results": MAX_SEARCH_RESULTS}
                 )
                 
                 if search_response.status_code != 200:
@@ -74,8 +91,11 @@ class ActionAnswerQuestion(Action):
                 
                 context = " ".join(context_parts)
                 
-                # Generate answer using the context
-                answer = self.generate_answer(user_message, context)
+                # Generate answer using DeepSeek LLM or fallback
+                if USE_LLM and deepseek_generator:
+                    answer = await self.generate_llm_answer(user_message, context)
+                else:
+                    answer = self.generate_simple_answer(user_message, context)
                 
                 # Format response with sources
                 source_list = ", ".join(sources)
@@ -91,7 +111,18 @@ class ActionAnswerQuestion(Action):
             dispatcher.utter_message(text="Sorry, I encountered an error while processing your question. Please try again.")
             return []
     
-    def generate_answer(self, question: str, context: str) -> str:
+    async def generate_llm_answer(self, question: str, context: str) -> str:
+        """Generate answer using DeepSeek LLM"""
+        try:
+            logger.info("Generating answer using DeepSeek LLM")
+            answer = await deepseek_generator.generate_answer(question, context)
+            return answer
+        except Exception as e:
+            logger.error(f"Error generating LLM answer: {e}")
+            # Fallback to simple generation
+            return self.generate_simple_answer(question, context)
+    
+    def generate_simple_answer(self, question: str, context: str) -> str:
         """
         Generate an answer based on the question and context
         This is a simple implementation - in production, you might want to use
@@ -128,14 +159,14 @@ class ActionAnswerQuestion(Action):
             
             if relevant_sentences:
                 # Return the most relevant sentences
-                answer = '. '.join(relevant_sentences[:2])
+                answer = '. '.join(relevant_sentences[:MAX_RELEVANT_SENTENCES])
                 if answer:
                     return f"Based on the uploaded documents: {answer}"
             
             # Fallback: return first part of context
             context_words = context.split()
-            if len(context_words) > 100:
-                summary = ' '.join(context_words[:100]) + "..."
+            if len(context_words) > CONTEXT_SUMMARY_WORDS:
+                summary = ' '.join(context_words[:CONTEXT_SUMMARY_WORDS]) + "..."
             else:
                 summary = context
                 
@@ -160,14 +191,14 @@ class ActionUploadPdf(Action):
             # In a real implementation, you would need to handle file upload
             # This action provides instructions for uploading files
             
-            message = """To upload a PDF document:
+            message = f"""To upload a PDF document:
 
 1. **Via API**: Send a POST request to:
-   `http://localhost:8001/upload-pdf`
+   `http://{PDF_PROCESSOR_HOST}:{PDF_PROCESSOR_PORT}/upload-pdf`
    
 2. **Via cURL**: 
    ```bash
-   curl -X POST "http://localhost:8001/upload-pdf" \\
+   curl -X POST "http://{PDF_PROCESSOR_HOST}:{PDF_PROCESSOR_PORT}/upload-pdf" \\
         -H "accept: application/json" \\
         -H "Content-Type: multipart/form-data" \\
         -F "file=@/path/to/your/document.pdf"

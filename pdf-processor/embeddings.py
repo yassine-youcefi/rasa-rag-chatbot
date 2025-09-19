@@ -7,17 +7,22 @@ import os
 logger = logging.getLogger(__name__)
 
 class EmbeddingManager:
-    def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
+    def __init__(self, model_name: str = None):
         """
         Initialize embedding manager with sentence transformer model
         
         Args:
             model_name: Name of the sentence transformer model
         """
+        # Use environment variable if model_name not provided
+        if model_name is None:
+            model_name = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
+            
         self.model_name = model_name
         try:
-            # Set cache directory to avoid permission issues
-            os.environ.setdefault('SENTENCE_TRANSFORMERS_HOME', '/tmp/sentence_transformers')
+            # Set cache directory from environment or default
+            cache_dir = os.getenv("SENTENCE_TRANSFORMERS_HOME", "/tmp/sentence_transformers")
+            os.environ.setdefault('SENTENCE_TRANSFORMERS_HOME', cache_dir)
             
             self.model = SentenceTransformer(model_name)
             logger.info(f"Loaded embedding model: {model_name}")
@@ -25,9 +30,10 @@ class EmbeddingManager:
             logger.error(f"Failed to load embedding model {model_name}: {e}")
             # Fallback to a smaller, more compatible model
             try:
-                logger.info("Trying fallback model: paraphrase-MiniLM-L6-v2")
-                self.model = SentenceTransformer("paraphrase-MiniLM-L6-v2")
-                self.model_name = "paraphrase-MiniLM-L6-v2"
+                fallback_model = os.getenv("EMBEDDING_FALLBACK_MODEL", "paraphrase-MiniLM-L6-v2")
+                logger.info(f"Trying fallback model: {fallback_model}")
+                self.model = SentenceTransformer(fallback_model)
+                self.model_name = fallback_model
                 logger.info("Fallback model loaded successfully")
             except Exception as e2:
                 logger.error(f"Fallback model also failed: {e2}")

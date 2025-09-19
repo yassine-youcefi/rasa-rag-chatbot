@@ -24,8 +24,12 @@ CHROMA_HOST = os.getenv("CHROMA_HOST", "localhost")
 CHROMA_PORT = int(os.getenv("CHROMA_PORT", "8000"))
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
-UPLOAD_DIR = "/app/uploads"
-COLLECTION_NAME = "pdf_documents"
+UPLOAD_DIR = os.getenv("UPLOAD_DIR", "/app/uploads")
+COLLECTION_NAME = os.getenv("COLLECTION_NAME", "pdf_documents")
+MAX_FILE_SIZE_MB = int(os.getenv("MAX_FILE_SIZE_MB", "50"))
+ALLOWED_FILE_TYPES = os.getenv("ALLOWED_FILE_TYPES", "pdf").split(",")
+MAX_SEARCH_RESULTS = int(os.getenv("MAX_SEARCH_RESULTS", "5"))
+SIMILARITY_THRESHOLD = float(os.getenv("SIMILARITY_THRESHOLD", "0.7"))
 
 # Initialize ChromaDB client (for vector embeddings) - will be initialized on startup
 chroma_client = None
@@ -119,10 +123,26 @@ async def health_check():
 @app.post("/upload-pdf")
 async def upload_pdf(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
     """Upload and process a PDF file"""
-    if not file.filename.endswith('.pdf'):
-        raise HTTPException(status_code=400, detail="Only PDF files are supported")
+    # Check file extension against allowed types
+    file_extension = file.filename.split('.')[-1].lower() if '.' in file.filename else ''
+    if file_extension not in ALLOWED_FILE_TYPES:
+        allowed_types_str = ", ".join(ALLOWED_FILE_TYPES)
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Only {allowed_types_str} files are supported. Received: {file_extension}"
+        )
     
     try:
+        # Read and check file size
+        content = await file.read()
+        file_size_mb = len(content) / (1024 * 1024)  # Convert to MB
+        
+        if file_size_mb > MAX_FILE_SIZE_MB:
+            raise HTTPException(
+                status_code=413, 
+                detail=f"File too large. Maximum size: {MAX_FILE_SIZE_MB}MB, received: {file_size_mb:.1f}MB"
+            )
+        
         # Generate unique file ID
         file_id = str(uuid.uuid4())
         filename = f"{file_id}_{file.filename}"
@@ -130,7 +150,6 @@ async def upload_pdf(background_tasks: BackgroundTasks, file: UploadFile = File(
         
         # Save uploaded file
         async with aiofiles.open(file_path, 'wb') as f:
-            content = await file.read()
             await f.write(content)
         
         # Store processing status in Redis
@@ -212,8 +231,11 @@ async def get_processing_status(file_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/search")
-async def search_documents(query: str, max_results: int = 5):
+async def search_documents(query: str, max_results: int = None):
     """Search through processed documents"""
+    if max_results is None:
+        max_results = MAX_SEARCH_RESULTS
+        
     try:
         # Generate query embedding
         query_embedding = embedding_manager.generate_embeddings([query])[0]
@@ -228,14 +250,21 @@ async def search_documents(query: str, max_results: int = 5):
         if not results["documents"][0]:
             return {"results": [], "message": "No relevant documents found"}
         
-        # Format results
+        # Format results and filter by similarity threshold
         formatted_results = []
         for i in range(len(results["documents"][0])):
-            formatted_results.append({
-                "content": results["documents"][0][i],
-                "metadata": results["metadatas"][0][i],
-                "distance": results["distances"][0][i] if results["distances"] else None
-            })
+            distance = results["distances"][0][i] if results["distances"] else 0.0
+            # Convert distance to similarity (lower distance = higher similarity)
+            similarity = 1.0 - distance if distance else 1.0
+            
+            # Only include results above similarity threshold
+            if similarity >= SIMILARITY_THRESHOLD:
+                formatted_results.append({
+                    "content": results["documents"][0][i],
+                    "metadata": results["metadatas"][0][i],
+                    "distance": distance,
+                    "similarity": similarity
+                })
         
         return {"results": formatted_results, "query": query}
         

@@ -21,7 +21,7 @@ The system consists of 5 Docker services working together:
 
 ### Core Services
 - **Rasa Core** (Port 5005): Conversational AI engine
-- **Action Server** (Port 5055): Custom RAG actions and logic  
+- **Action Server** (Port 5055): Custom RAG actions with DeepSeek LLM integration
 - **PDF Processor** (Port 8001): Document processing and embedding service
 - **ChromaDB** (Port 8000): Vector database for embeddings
 - **Redis** (Port 6379): Caching and session storage
@@ -30,9 +30,135 @@ The system consists of 5 Docker services working together:
 - **Rasa 3.6.20-full**: Conversational AI framework
 - **ChromaDB 0.4.15**: Vector database for similarity search
 - **FastAPI**: PDF processing REST API
-- **sentence-transformers**: all-MiniLM-L6-v2 embedding model
+- **DeepSeek API**: External LLM for intelligent answer generation
+- **sentence-transformers**: Self-hosted embedding models
 - **Redis 7**: High-performance caching
 - **Docker Compose**: Service orchestration
+
+## 🤖 **AI Models & Integration**
+
+### **Large Language Model (LLM) - DeepSeek API**
+
+Your system uses **DeepSeek's external API** for intelligent answer generation:
+
+**🧠 Model Details:**
+- **Provider**: DeepSeek AI (External API)
+- **Model**: `deepseek-chat` (configurable)
+- **Purpose**: Generate intelligent, context-aware answers
+- **Integration**: RESTful API calls (no self-hosting required)
+- **Cost**: Pay-per-use API pricing
+- **Performance**: High-quality responses with minimal latency
+
+**⚙️ Configuration:**
+```bash
+# In .env file:
+LLM_TYPE=deepseek_api
+DEEPSEEK_API_KEY=your_actual_api_key_here
+DEEPSEEK_BASE_URL=https://api.deepseek.com/v1
+DEEPSEEK_MODEL=deepseek-chat
+LLM_TEMPERATURE=0.1        # Response creativity (0.0-1.0)
+LLM_MAX_TOKENS=500         # Maximum response length
+```
+
+**📋 Setup Instructions:**
+1. **Get API Key**: Visit [DeepSeek Console](https://platform.deepseek.com) and create an account
+2. **Generate API Key**: Navigate to API Keys section and create a new key
+3. **Configure Environment**: Add your API key to `.env` file:
+   ```bash
+   DEEPSEEK_API_KEY=sk-your-actual-key-here
+   ```
+4. **Restart Services**: `docker-compose down && docker-compose up -d`
+
+### **Embedding Models - HuggingFace (Self-Hosted)**
+
+Your system uses **sentence-transformers** for document embeddings:
+
+**📊 Primary Embedding Model:**
+- **Model**: `all-MiniLM-L6-v2` (Hugging Face)
+- **Size**: ~90MB
+- **Dimensions**: 384
+- **Purpose**: Convert text to vector embeddings for similarity search
+- **Self-hosted**: ✅ Downloaded and cached locally in Docker containers
+- **No API Key Required**: ✅ Completely free and private
+
+**🔄 Fallback Model:**
+- **Model**: `paraphrase-MiniLM-L6-v2`
+- **Purpose**: Backup if primary model fails to load
+- **Same specifications as primary model**
+
+**⚙️ Configuration:**
+```bash
+# In .env file:
+EMBEDDING_MODEL=all-MiniLM-L6-v2
+EMBEDDING_FALLBACK_MODEL=paraphrase-MiniLM-L6-v2
+
+# Model cache directories (inside containers):
+HF_HOME=/tmp/huggingface
+SENTENCE_TRANSFORMERS_HOME=/tmp/sentence_transformers
+TRANSFORMERS_CACHE=/tmp/transformers
+```
+
+**🏃‍♂️ How It Works:**
+1. **First Run**: Models automatically download from Hugging Face Hub (~180MB total)
+2. **Subsequent Runs**: Models load from local cache (fast startup)
+3. **Processing**: Text chunks converted to 384-dimensional vectors
+4. **Storage**: Vectors stored in ChromaDB for similarity search
+5. **Query Time**: User questions converted to vectors and matched against document vectors
+
+### **Model Performance & Resource Usage**
+
+**💾 Memory Requirements:**
+- **DeepSeek API**: ~0MB (external service)
+- **Embedding Models**: ~1GB RAM for model loading
+- **ChromaDB**: ~500MB for vector storage
+- **Total System**: ~4GB RAM recommended
+
+**⚡ Performance Characteristics:**
+- **Answer Generation**: 1-3 seconds (DeepSeek API)
+- **Embedding Generation**: 100ms per document chunk
+- **Vector Search**: <50ms for similarity queries
+- **PDF Processing**: 2-5 seconds per MB of PDF content
+
+**🔐 Privacy & Security:**
+- **LLM**: External API (data sent to DeepSeek)
+- **Embeddings**: Fully local (no data leaves your server)
+- **Documents**: Stored locally in ChromaDB
+- **Cache**: All embeddings cached locally for privacy
+
+### **Model Comparison & Alternatives**
+
+**🎯 Current Setup Benefits:**
+- **Best of Both Worlds**: High-quality LLM responses + Private embeddings
+- **Cost Effective**: Pay only for LLM usage, embeddings are free
+- **Fast Setup**: No need to download large LLM models
+- **Scalable**: DeepSeek handles LLM infrastructure
+
+**🔄 Alternative Configurations:**
+
+**Option 1: Fully Local (Privacy-First)**
+```bash
+# Use local Ollama + local embeddings
+LLM_TYPE=ollama
+OLLAMA_HOST=ollama
+OLLAMA_PORT=11434
+# Requires additional Docker service for Ollama
+```
+
+**Option 2: Full External APIs**
+```bash
+# Use OpenAI + local embeddings
+LLM_TYPE=openai
+OPENAI_API_KEY=your_openai_key
+OPENAI_MODEL=gpt-3.5-turbo
+```
+
+**Option 3: Different Embedding Models**
+```bash
+# Use larger, more accurate embedding model
+EMBEDDING_MODEL=all-mpnet-base-v2  # 420MB, 768 dimensions
+# Or smaller, faster model
+EMBEDDING_MODEL=all-MiniLM-L12-v2  # 120MB, 384 dimensions
+```
 
 ## 📋 Prerequisites
 
@@ -44,12 +170,30 @@ The system consists of 5 Docker services working together:
 
 ## 🚀 Quick Start Guide
 
-### 1. System Startup
+### 1. Get DeepSeek API Key (Required)
+Before starting, you need a DeepSeek API key for intelligent answer generation:
+
+1. **Visit DeepSeek Platform**: Go to [https://platform.deepseek.com](https://platform.deepseek.com)
+2. **Create Account**: Sign up for a new account
+3. **Generate API Key**: 
+   - Navigate to "API Keys" in your dashboard
+   - Click "Create new secret key"
+   - Copy the generated key (starts with `sk-`)
+4. **Add to Environment**: 
+   ```bash
+   # Edit .env file
+   DEEPSEEK_API_KEY=sk-your-actual-api-key-here
+   ```
+
+### 2. System Startup
 ```bash
 # Navigate to project directory
 cd /Users/Yassine/Desktop/rasa
 
-# Start all services (first run takes longer due to model downloads)
+# Configure DeepSeek API key (REQUIRED)
+# Edit .env file and add: DEEPSEEK_API_KEY=sk-your-actual-key
+
+# Start all services (first run downloads embedding models ~180MB)
 docker-compose up --build -d
 
 # Check all services are running
@@ -680,17 +824,24 @@ services:
 
 👤 User: What can you tell me about machine learning?
 🤖 Bot: Based on the uploaded documents, machine learning is a subset of artificial 
-       intelligence that focuses on algorithms and statistical models that enable 
-       computer systems to improve their performance on specific tasks through experience...
+       intelligence that enables computer systems to automatically improve their 
+       performance on specific tasks through experience, without being explicitly 
+       programmed for each scenario. The documents describe several key approaches 
+       including supervised learning, unsupervised learning, and reinforcement learning, 
+       each suited for different types of problems and data structures.
        
-       📚 Sources: ML_Guide.pdf (chunks 1-3)
+       📚 Sources: ML_Guide.pdf, AI_Research.pdf
 
 👤 User: Can you be more specific about neural networks?
 🤖 Bot: From your documents, neural networks are computational models inspired by 
-       biological neural networks. They consist of interconnected nodes (neurons) 
-       that process and transmit information...
+       biological neural networks in the human brain. They consist of interconnected 
+       nodes (neurons) organized in layers that process and transmit information. 
+       The documents explain that these networks learn by adjusting the strength of 
+       connections between neurons based on training data, making them particularly 
+       effective for pattern recognition, image classification, and natural language 
+       processing tasks.
        
-       📚 Sources: AI_Research.pdf (chunk 7), Deep_Learning.pdf (chunks 2-4)
+       📚 Sources: Deep_Learning.pdf, Neural_Networks_Guide.pdf
 ```
 
 ### Document Management

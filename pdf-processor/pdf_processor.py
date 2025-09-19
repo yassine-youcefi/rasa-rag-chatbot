@@ -1,11 +1,12 @@
 import PyPDF2
 import logging
+import os
 from typing import List
 
 logger = logging.getLogger(__name__)
 
 class PDFProcessor:
-    def __init__(self, chunk_size: int = 1000, chunk_overlap: int = 200):
+    def __init__(self, chunk_size: int = None, chunk_overlap: int = None):
         """
         Initialize PDF processor
         
@@ -13,8 +14,8 @@ class PDFProcessor:
             chunk_size: Maximum size of text chunks
             chunk_overlap: Number of characters to overlap between chunks
         """
-        self.chunk_size = chunk_size
-        self.chunk_overlap = chunk_overlap
+        self.chunk_size = chunk_size or int(os.getenv("CHUNK_SIZE", "1000"))
+        self.chunk_overlap = chunk_overlap or int(os.getenv("CHUNK_OVERLAP", "200"))
 
     def extract_text_from_pdf(self, pdf_path: str) -> str:
         """
