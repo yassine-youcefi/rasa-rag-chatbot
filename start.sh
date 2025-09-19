@@ -1,11 +1,12 @@
 #!/bin/bash
 
-# Rasa RAG Chatbot - Quick Start Script
-# This script builds and starts all services
+# Sipsty RAG Chatbot - Complete System Startup
+# Builds and starts all services including the Web UI Dashboard
 
 set -e
 
-echo "🚀 Starting Rasa RAG Chatbot..."
+echo "🚀 Starting Sipsty RAG Chatbot with Web UI..."
+echo ""
 
 # Check if Docker is running
 if ! docker info > /dev/null 2>&1; then
@@ -19,15 +20,21 @@ if ! command -v docker-compose &> /dev/null; then
     exit 1
 fi
 
-echo "📦 Building and starting services..."
+echo "📦 Building and starting all services (including Web UI)..."
+
+# Stop any existing containers to ensure clean start
+docker-compose down
+
+# Build and start all services
 docker-compose up --build -d
 
 echo "⏳ Waiting for services to be ready..."
+echo ""
 
 # Wait for ChromaDB
 echo "Waiting for ChromaDB..."
 for i in {1..30}; do
-    if curl -s http://localhost:8000/api/v1/heartbeat > /dev/null 2>&1; then
+    if curl -sf http://localhost:8003/api/v1/heartbeat > /dev/null 2>&1; then
         echo "✅ ChromaDB is ready"
         break
     fi
@@ -41,7 +48,7 @@ done
 # Wait for Redis
 echo "Waiting for Redis..."
 for i in {1..30}; do
-    if docker-compose exec -T redis redis-cli ping > /dev/null 2>&1; then
+    if nc -z localhost 6379 > /dev/null 2>&1; then
         echo "✅ Redis is ready"
         break
     fi
@@ -55,7 +62,7 @@ done
 # Wait for PDF Processor
 echo "Waiting for PDF Processor..."
 for i in {1..60}; do
-    if curl -s http://localhost:8001/health > /dev/null 2>&1; then
+    if curl -sf http://localhost:8000/health > /dev/null 2>&1; then
         echo "✅ PDF Processor is ready"
         break
     fi
@@ -69,7 +76,7 @@ done
 # Wait for Action Server
 echo "Waiting for Action Server..."
 for i in {1..60}; do
-    if curl -s http://localhost:5055/webhook > /dev/null 2>&1; then
+    if curl -sf http://localhost:5055/health > /dev/null 2>&1; then
         echo "✅ Action Server is ready"
         break
     fi
@@ -83,7 +90,7 @@ done
 # Wait for Rasa Server
 echo "Waiting for Rasa Server..."
 for i in {1..60}; do
-    if curl -s http://localhost:5005/ > /dev/null 2>&1; then
+    if curl -sf http://localhost:5005/ > /dev/null 2>&1; then
         echo "✅ Rasa Server is ready"
         break
     fi
@@ -94,24 +101,49 @@ for i in {1..60}; do
     sleep 2
 done
 
+# Wait for Web UI
+echo "Waiting for Web UI..."
+for i in {1..30}; do
+    if curl -sf http://localhost:8002/api/system-status > /dev/null 2>&1; then
+        echo "✅ Web UI is ready"
+        break
+    fi
+    if [ $i -eq 30 ]; then
+        echo "❌ Web UI failed to start"
+        exit 1
+    fi
+    sleep 2
+done
+
 echo ""
-echo "🎉 All services are running!"
+echo "🎉 All services are running successfully!"
 echo ""
-echo "📋 Service URLs:"
-echo "   Rasa Server:     http://localhost:5005"
-echo "   PDF Processor:   http://localhost:8001"
-echo "   ChromaDB:        http://localhost:8000"
-echo "   Action Server:   http://localhost:5055"
+echo "🌐 WEB DASHBOARD (Primary Interface):"
+echo "   📊 Management Dashboard: http://localhost:8002"
+echo "   💬 Chat Interface:       Available in dashboard"
+echo "   📁 Document Management:  Available in dashboard"
+echo "   �️  Collection Explorer:  Available in dashboard"
 echo ""
-echo "📚 To upload a PDF:"
-echo "   curl -X POST http://localhost:8001/upload-pdf -F 'file=@your-document.pdf'"
+echo "🔧 API ENDPOINTS (Advanced Users):"
+echo "   🤖 Rasa Server:         http://localhost:5005"
+echo "   📄 PDF Processor:       http://localhost:8000"
+echo "   🔍 ChromaDB:            http://localhost:8003"
+echo "   ⚡ Action Server:       http://localhost:5055"
+echo "   📊 Redis:               localhost:6379"
 echo ""
-echo "💬 To chat with the bot:"
-echo "   curl -X POST http://localhost:5005/webhooks/rest/webhook \\"
-echo "        -H 'Content-Type: application/json' \\"
-echo "        -d '{\"sender\": \"user1\", \"message\": \"Hello!\"}'"
+echo "💡 QUICK START:"
+echo "   1. Open http://localhost:8002 in your browser"
+echo "   2. Upload Sipsty knowledge base PDFs (Document Management tab)"
+echo "   3. Test multilingual conversations (Chat tab)"
+echo "   4. Explore vector database (Collections tab)"
 echo ""
-echo "📖 Check README.md for detailed usage instructions."
+echo "🌍 TEST MULTILINGUAL CONVERSATIONS:"
+echo "   English: 'Hello, tell me about Sipsty products'"
+echo "   French:  'Bonjour, parlez-moi des produits Sipsty'"
+echo "   Arabic:  'مرحباً، أخبرني عن منتجات سيبستي'"
 echo ""
-echo "🔍 View logs with: docker-compose logs [service-name]"
-echo "🛑 Stop with: docker-compose down"
+echo "� For detailed instructions, see README.md"
+echo ""
+echo "🔍 View logs: docker-compose logs [service-name]"
+echo "🛑 Stop system: docker-compose down"
+echo ""

@@ -204,16 +204,13 @@ cd /Users/Yassine/Desktop/rasa
 # Configure OpenRouter API key (REQUIRED)
 # Edit .env file and add: DEEPSEEK_API_KEY=your_openrouter_api_key_here
 
-# Start all services with Web UI (recommended)
-./start-with-ui.sh
-
-# OR start manually with docker-compose
-docker-compose up --build -d
+# Start complete system with Web UI (unified command)
+./start.sh
 
 # Check all services are running (should show 6 containers)
 docker-compose ps
 
-# Run system health check
+# Run comprehensive system test
 ./test-system.sh
 ```
 
@@ -316,30 +313,28 @@ rasa/
 │   ├── pdf_processor.py    # 📝 PDF text extraction utilities
 │   └── embeddings.py       # 🧮 Vector embeddings management
 ├──
-├── start.sh                 # ▶️ Quick system startup script
-├── stop.sh                  # ⏹️ Quick system shutdown script
-├── test-system.sh          # 🧪 Health check and system testing
-├── upload-and-test.sh      # 📤 PDF upload and testing script
-├── chat.py                 # 💬 Interactive chat client
+├── start.sh                 # ▶️ Complete system startup with Web UI
+├── stop.sh                  # ⏹️ Clean system shutdown script  
+├── test-system.sh          # 🧪 Comprehensive health check and system testing
+├── chat.py                 # 💬 Interactive multilingual chat client
 └──
 └── logs/                   # 📊 Application logs (created at runtime)
 ```
 
 ### 🛠 Utility Scripts
 
-The project includes several utility scripts to help manage your RAG chatbot system:
+The project includes utility scripts to help manage your Sipsty RAG chatbot system:
 
-- **`start.sh`** - ▶️ Quick system startup (builds and starts all services)
+- **`start.sh`** - ▶️ Complete system startup (builds and starts all 6 services including Web UI)
 - **`stop.sh`** - ⏹️ Clean system shutdown (stops all services and containers)
-- **`test-system.sh`** - 🧪 Comprehensive health check and system validation
-- **`upload-and-test.sh`** - 📤 Automated PDF upload and testing demonstration
-- **`chat.py`** - 💬 Interactive terminal chat client for easy conversation testing
+- **`test-system.sh`** - 🧪 Comprehensive health check and system validation with Web UI testing
+- **`chat.py`** - 💬 Interactive terminal chat client for multilingual conversation testing
 
 ```bash
 # Quick start commands
-./start.sh                    # Start the entire system
-./test-system.sh             # Verify everything is working
-python3 chat.py              # Start chatting
+./start.sh                    # Start complete system with Web UI
+./test-system.sh             # Verify all services including Web Dashboard
+python3 chat.py              # Test multilingual conversations in terminal
 ./stop.sh                    # Clean shutdown when done
 ```
 
@@ -577,10 +572,10 @@ curl "http://localhost:8001/search?query=test"
 # Run comprehensive system test
 ./test-system.sh
 
-# Upload test document and interact
-./upload-and-test.sh
+# Test all system components
+./test-system.sh
 
-# Interactive chat
+# Interactive multilingual chat testing
 python3 chat.py
 ```
 

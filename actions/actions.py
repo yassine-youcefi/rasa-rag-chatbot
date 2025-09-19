@@ -6,7 +6,6 @@ import httpx
 import logging
 import os
 import redis
-import json
 
 # Import DeepSeek LLM generator
 from deepseek_generator import create_deepseek_generator
