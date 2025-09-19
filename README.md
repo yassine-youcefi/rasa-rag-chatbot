@@ -1,10 +1,10 @@
 # 🤖 Rasa RAG Chatbot with PDF Knowledge Base
 
-> **Status: ✅ FULLY OPERATIONAL** - A complete self-hosted Retrieval-Augmented Generation (RAG) chatbot built with Rasa that intelligently answers questions based on your uploaded PDF documents.
+> **Status: ✅ FULLY OPERATIONAL** - A complete Retrieval-Augmented Generation (RAG) chatbot built with Rasa that intelligently answers questions based on your uploaded PDF documents.
 
 ## 🌟 Features
 
-- ✅ **Complete Self-Hosted Solution** - No external API dependencies
+- ✅ **External LLM Integration** - Uses OpenRouter DeepSeek Chat v3.1 Free model
 - ✅ **PDF Document Processing** - Automatic text extraction and intelligent chunking
 - ✅ **Vector Search** - ChromaDB for semantic similarity search
 - ✅ **Conversational Interface** - Natural language interaction via Rasa
@@ -30,42 +30,44 @@ The system consists of 5 Docker services working together:
 - **Rasa 3.6.20-full**: Conversational AI framework
 - **ChromaDB 0.4.15**: Vector database for similarity search
 - **FastAPI**: PDF processing REST API
-- **DeepSeek API**: External LLM for intelligent answer generation
+- **OpenRouter DeepSeek API**: External LLM for intelligent answer generation
 - **sentence-transformers**: Self-hosted embedding models
 - **Redis 7**: High-performance caching
 - **Docker Compose**: Service orchestration
 
 ## 🤖 **AI Models & Integration**
 
-### **Large Language Model (LLM) - DeepSeek API**
+### **Large Language Model (LLM) - OpenRouter DeepSeek Chat v3.1 Free**
 
-Your system uses **DeepSeek's external API** for intelligent answer generation:
+Your system uses **OpenRouter's DeepSeek Chat v3.1 Free model** for intelligent answer generation:
 
 **🧠 Model Details:**
-- **Provider**: DeepSeek AI (External API)
-- **Model**: `deepseek-chat` (configurable)
-- **Purpose**: Generate intelligent, context-aware answers
-- **Integration**: RESTful API calls (no self-hosting required)
-- **Cost**: Pay-per-use API pricing
+- **Provider**: OpenRouter (DeepSeek Chat v3.1 Free)
+- **Model**: `deepseek/deepseek-chat-v3.1:free`
+- **Parameters**: 671B total, 37B active
+- **Context Length**: 163,840 tokens (163K)
+- **Cost**: 100% Free ($0/M input/output tokens)
+- **Features**: Advanced reasoning, code generation, tool use
 - **Performance**: High-quality responses with minimal latency
 
 **⚙️ Configuration:**
 ```bash
 # In .env file:
 LLM_TYPE=deepseek_api
-DEEPSEEK_API_KEY=your_actual_api_key_here
-DEEPSEEK_BASE_URL=https://api.deepseek.com/v1
-DEEPSEEK_MODEL=deepseek-chat
-LLM_TEMPERATURE=0.1        # Response creativity (0.0-1.0)
-LLM_MAX_TOKENS=500         # Maximum response length
+DEEPSEEK_API_KEY=your_openrouter_api_key_here
+DEEPSEEK_BASE_URL=https://openrouter.ai/api/v1
+DEEPSEEK_MODEL=deepseek/deepseek-chat-v3.1:free
+LLM_TEMPERATURE=0.1
+LLM_MAX_TOKENS=1000
+LLM_TIMEOUT=30.0
 ```
 
 **📋 Setup Instructions:**
-1. **Get API Key**: Visit [DeepSeek Console](https://platform.deepseek.com) and create an account
+1. **Get API Key**: Visit [OpenRouter.ai](https://openrouter.ai) and create an account
 2. **Generate API Key**: Navigate to API Keys section and create a new key
 3. **Configure Environment**: Add your API key to `.env` file:
    ```bash
-   DEEPSEEK_API_KEY=sk-your-actual-key-here
+   DEEPSEEK_API_KEY=your_openrouter_api_key_here
    ```
 4. **Restart Services**: `docker-compose down && docker-compose up -d`
 
@@ -108,57 +110,22 @@ TRANSFORMERS_CACHE=/tmp/transformers
 ### **Model Performance & Resource Usage**
 
 **💾 Memory Requirements:**
-- **DeepSeek API**: ~0MB (external service)
+- **DeepSeek API**: ~0MB (external service via OpenRouter)
 - **Embedding Models**: ~1GB RAM for model loading
 - **ChromaDB**: ~500MB for vector storage
 - **Total System**: ~4GB RAM recommended
 
 **⚡ Performance Characteristics:**
-- **Answer Generation**: 1-3 seconds (DeepSeek API)
+- **Answer Generation**: 1-3 seconds (OpenRouter DeepSeek API)
 - **Embedding Generation**: 100ms per document chunk
 - **Vector Search**: <50ms for similarity queries
 - **PDF Processing**: 2-5 seconds per MB of PDF content
 
 **🔐 Privacy & Security:**
-- **LLM**: External API (data sent to DeepSeek)
+- **LLM**: External API via OpenRouter (data sent to OpenRouter/DeepSeek)
 - **Embeddings**: Fully local (no data leaves your server)
 - **Documents**: Stored locally in ChromaDB
 - **Cache**: All embeddings cached locally for privacy
-
-### **Model Comparison & Alternatives**
-
-**🎯 Current Setup Benefits:**
-- **Best of Both Worlds**: High-quality LLM responses + Private embeddings
-- **Cost Effective**: Pay only for LLM usage, embeddings are free
-- **Fast Setup**: No need to download large LLM models
-- **Scalable**: DeepSeek handles LLM infrastructure
-
-**🔄 Alternative Configurations:**
-
-**Option 1: Fully Local (Privacy-First)**
-```bash
-# Use local Ollama + local embeddings
-LLM_TYPE=ollama
-OLLAMA_HOST=ollama
-OLLAMA_PORT=11434
-# Requires additional Docker service for Ollama
-```
-
-**Option 2: Full External APIs**
-```bash
-# Use OpenAI + local embeddings
-LLM_TYPE=openai
-OPENAI_API_KEY=your_openai_key
-OPENAI_MODEL=gpt-3.5-turbo
-```
-
-**Option 3: Different Embedding Models**
-```bash
-# Use larger, more accurate embedding model
-EMBEDDING_MODEL=all-mpnet-base-v2  # 420MB, 768 dimensions
-# Or smaller, faster model
-EMBEDDING_MODEL=all-MiniLM-L12-v2  # 120MB, 384 dimensions
-```
 
 ## 📋 Prerequisites
 
@@ -167,22 +134,23 @@ EMBEDDING_MODEL=all-MiniLM-L12-v2  # 120MB, 384 dimensions
   - At least 4GB RAM (8GB recommended for production)
   - 2GB free disk space (more for document storage)
 - **Network**: Ports 5005, 5055, 8000, 8001, 6379 available
+- **OpenRouter API Key**: Free account at [OpenRouter.ai](https://openrouter.ai)
 
 ## 🚀 Quick Start Guide
 
-### 1. Get DeepSeek API Key (Required)
-Before starting, you need a DeepSeek API key for intelligent answer generation:
+### 1. Get OpenRouter API Key (Required)
+Before starting, you need an OpenRouter API key for the DeepSeek model:
 
-1. **Visit DeepSeek Platform**: Go to [https://platform.deepseek.com](https://platform.deepseek.com)
+1. **Visit OpenRouter**: Go to [https://openrouter.ai](https://openrouter.ai)
 2. **Create Account**: Sign up for a new account
 3. **Generate API Key**: 
    - Navigate to "API Keys" in your dashboard
-   - Click "Create new secret key"
-   - Copy the generated key (starts with `sk-`)
+   - Click "Create new key"
+   - Copy the generated key
 4. **Add to Environment**: 
    ```bash
    # Edit .env file
-   DEEPSEEK_API_KEY=sk-your-actual-api-key-here
+   DEEPSEEK_API_KEY=your_openrouter_api_key_here
    ```
 
 ### 2. System Startup
@@ -190,8 +158,8 @@ Before starting, you need a DeepSeek API key for intelligent answer generation:
 # Navigate to project directory
 cd /Users/Yassine/Desktop/rasa
 
-# Configure DeepSeek API key (REQUIRED)
-# Edit .env file and add: DEEPSEEK_API_KEY=sk-your-actual-key
+# Configure OpenRouter API key (REQUIRED)
+# Edit .env file and add: DEEPSEEK_API_KEY=your_openrouter_api_key_here
 
 # Start all services (first run downloads embedding models ~180MB)
 docker-compose up --build -d
@@ -203,7 +171,7 @@ docker-compose ps
 ./test-system.sh
 ```
 
-### 2. Upload Your First PDF
+### 3. Upload Your First PDF
 ```bash
 # Upload a PDF document
 curl -X POST "http://localhost:8001/upload-pdf" \
@@ -215,7 +183,7 @@ curl -X POST "http://localhost:8001/upload-pdf" \
 curl "http://localhost:8001/documents"
 ```
 
-### 3. Start Chatting
+### 4. Start Chatting
 ```bash
 # Interactive chat in terminal (recommended for testing)
 python3 chat.py
@@ -392,6 +360,15 @@ The chatbot understands and responds to:
 Key configuration options in `.env`:
 
 ```bash
+# LLM Configuration (OpenRouter DeepSeek Chat v3.1 Free)
+LLM_TYPE=deepseek_api
+DEEPSEEK_API_KEY=your_openrouter_api_key_here
+DEEPSEEK_BASE_URL=https://openrouter.ai/api/v1
+DEEPSEEK_MODEL=deepseek/deepseek-chat-v3.1:free
+LLM_TEMPERATURE=0.1
+LLM_MAX_TOKENS=1000
+LLM_TIMEOUT=30.0
+
 # Service Ports
 RASA_SERVER_PORT=5005
 ACTION_SERVER_PORT=5055
@@ -404,74 +381,26 @@ MAX_FILE_SIZE_MB=50
 CHUNK_SIZE=1000
 CHUNK_OVERLAP=200
 EMBEDDING_MODEL=all-MiniLM-L6-v2
+UPLOAD_DIR=/app/uploads
 
 # Search & RAG Configuration  
 MAX_SEARCH_RESULTS=5
 SIMILARITY_THRESHOLD=0.7
-MIN_CHUNK_LENGTH=100
-MAX_CONTEXT_LENGTH=2000
+MAX_RELEVANT_SENTENCES=2
+CONTEXT_SUMMARY_WORDS=100
+COLLECTION_NAME=pdf_documents
 
-# Performance Tuning
-REDIS_MAX_MEMORY=512mb
-CHROMA_PERSIST_DIRECTORY=/chroma/chroma
-SENTENCE_TRANSFORMERS_HOME=/tmp/sentence_transformers
+# Redis Configuration
+REDIS_TTL=3600
+CACHE_ENABLED=true
+
+# Logging
+LOG_LEVEL=INFO
 ```
 
-### Advanced Customization
-
-#### Adding New Conversation Intents
-1. **Update Training Data**: Edit `rasa/nlu.yml` with new intent examples
-2. **Create Stories**: Add conversation flows in `rasa/stories.yml`
-3. **Implement Actions**: Add custom logic in `actions/actions.py`
-4. **Update Domain**: Define new responses in `rasa/domain.yml`
-5. **Retrain Model**: Run `docker-compose exec rasa rasa train`
-
-#### Enhancing Answer Generation
-The system currently uses retrieval + simple response generation. To improve:
-
-```python
-# In actions/actions.py, replace simple responses with:
-
-# Option 1: OpenAI GPT Integration
-import openai
-def generate_answer(context, question):
-    prompt = f"Based on this context: {context}\nAnswer: {question}"
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": prompt}]
-    )
-    return response.choices[0].message.content
-
-# Option 2: Local LLM (Ollama)
-import requests
-def generate_answer(context, question):
-    response = requests.post("http://localhost:11434/api/generate",
-        json={"model": "llama2", "prompt": f"Context: {context}\nQ: {question}\nA:"})
-    return response.json()["response"]
-```
-
-#### Supporting Additional File Types
-Extend `pdf_processor/main.py` to handle more formats:
-
-```python
-# Add support for .docx, .txt, .html
-from docx import Document
-import textract
-
-def extract_text_from_docx(file_path):
-    doc = Document(file_path)
-    return "\n".join([paragraph.text for paragraph in doc.paragraphs])
-
-def extract_text_from_txt(file_path):
-    with open(file_path, 'r', encoding='utf-8') as file:
-        return file.read()
-```
-
-## 🔍 Monitoring & Maintenance
+## 🔍 Monitoring & Troubleshooting
 
 ### Health Monitoring
-
-#### Automated Health Checks
 ```bash
 # Comprehensive system test
 ./test-system.sh
@@ -480,341 +409,74 @@ def extract_text_from_txt(file_path):
 curl http://localhost:8001/health  # PDF Processor
 curl http://localhost:5055/health  # Action Server  
 curl http://localhost:8000/api/v1/heartbeat  # ChromaDB
-```
 
-#### Service Status Dashboard
-```bash
-# View all service status
+# View service status
 docker-compose ps
 
-# Resource usage monitoring  
-docker-compose top
-
-# Real-time resource stats
-docker stats $(docker-compose ps -q)
+# View logs
+docker-compose logs -f --tail=50
 ```
-
-### Log Management
-
-#### Viewing Logs
-```bash
-# All services
-docker-compose logs
-
-# Specific services with follow
-docker-compose logs -f rasa
-docker-compose logs -f pdf-processor  
-docker-compose logs -f chroma
-
-# Last 100 lines
-docker-compose logs --tail=100
-```
-
-#### Log Rotation
-```bash
-# Add to docker-compose.yml for production:
-logging:
-  driver: "json-file"
-  options:
-    max-size: "10m"
-    max-file: "3"
-```
-
-### Performance Optimization
-
-#### For Better Speed
-```bash
-# Reduce search results for faster response
-export MAX_SEARCH_RESULTS=3
-
-# Use smaller embedding model
-export EMBEDDING_MODEL=all-MiniLM-L12-v2  
-
-# Optimize chunk sizes
-export CHUNK_SIZE=500
-export CHUNK_OVERLAP=100
-```
-
-#### For Better Accuracy  
-```bash
-# Use larger embedding model
-export EMBEDDING_MODEL=all-mpnet-base-v2
-
-# Increase search results
-export MAX_SEARCH_RESULTS=10
-
-# Lower similarity threshold
-export SIMILARITY_THRESHOLD=0.6
-```
-
-#### For Production Scaling
-```bash
-# Scale horizontally
-docker-compose up --scale pdf-processor=3 --scale action-server=2
-
-# Use external databases
-export CHROMA_HOST=external-chroma-server.com
-export REDIS_HOST=external-redis-server.com
-```
-
-## 🧪 Testing Your System
-
-### Automated Testing
-```bash
-# Run comprehensive system test
-./test-system.sh
-
-# Expected output:
-# ✅ PDF Processor: healthy - chroma: ok, redis: ok
-# ✅ Action Server: healthy
-# ✅ ChromaDB: heartbeat responding  
-# ✅ All services running
-```
-
-### Creating Test Documents
-
-Since you'll need PDF documents for testing, here are some quick ways to create test files:
-
-```bash
-# Create a simple text file and convert to PDF (macOS/Linux)
-echo "This is a test document for the RAG chatbot system. 
-It contains information about artificial intelligence and machine learning.
-The system can answer questions about the content in this document." > test.txt
-
-# Convert to PDF using system tools
-# macOS: textutil -convert rtf test.txt -output test.rtf && textutil -convert pdf test.rtf
-# Linux: pandoc test.txt -o test.pdf
-# Or use online converters like pdf24.org or smallpdf.com
-
-# Alternatively, save any webpage as PDF using your browser
-# Or download research papers from arxiv.org, papers with abstracts work well
-```
-
-### Manual Testing Scenarios
-
-#### Scenario 1: Single Document Upload & Query
-```bash
-# 1. Upload test document (replace with your PDF file)
-curl -X POST -F "file=@your-document.pdf" http://localhost:8001/upload-pdf
-
-# 2. Wait for processing (check status)
-curl http://localhost:8001/documents
-
-# 3. Ask questions
-curl -X POST http://localhost:5005/webhooks/rest/webhook \
-  -H "Content-Type: application/json" \
-  -d '{"sender": "test", "message": "What is RAG?"}'
-```
-
-#### Scenario 2: Interactive Chat Session
-```bash
-# Start interactive session
-python3 chat.py
-
-# Try these conversation flows:
-# User: Hello
-# Bot: Hello! I'm your AI assistant...
-
-# User: What does the document say about Rasa?
-# Bot: Based on the uploaded documents: Rasa is...
-
-# User: List documents  
-# Bot: 📚 Uploaded Documents: [list of files]
-
-# User: Goodbye
-# Bot: Goodbye! Feel free to ask me anything...
-```
-
-#### Scenario 3: API Integration Test
-```python
-import requests
-import json
-
-def test_full_workflow():
-    # 1. Check system health
-    health = requests.get("http://localhost:8001/health")
-    assert health.json()["status"] == "healthy"
-    
-    # 2. Upload document (replace with your PDF file)
-    with open("your-document.pdf", "rb") as f:
-        upload = requests.post("http://localhost:8001/upload-pdf", 
-                              files={"file": f})
-    assert upload.status_code == 200
-    
-    # 3. Wait for processing
-    import time
-    time.sleep(5)
-    
-    # 4. Ask question
-    chat_response = requests.post("http://localhost:5005/webhooks/rest/webhook",
-        json={"sender": "test", "message": "What is this document about?"})
-    
-    assert len(chat_response.json()) > 0
-    print("✅ Full workflow test passed!")
-
-test_full_workflow()
-```
-
-## 🚧 Troubleshooting Guide
 
 ### Common Issues & Solutions
 
 #### 1. Services Won't Start
-**Symptoms**: `docker-compose up` fails or services keep restarting
-
-**Solutions**:
 ```bash
-# Check Docker is running
-docker --version
-docker-compose --version
-
-# Verify port availability  
+# Check Docker is running and ports are available
 lsof -i :5005 :5055 :8000 :8001 :6379
 
-# Clean up previous containers
+# Clean up and restart
 docker-compose down -v
-docker system prune -f
-
-# Check logs for specific errors
-docker-compose logs [service-name]
+docker-compose up --build -d
 ```
 
 #### 2. "No relevant documents found"
-**Symptoms**: Bot always responds with no results
-
-**Solutions**:
 ```bash
 # Verify documents are uploaded and processed
 curl http://localhost:8001/documents
 
-# Check document processing status
-curl http://localhost:8001/status/FILE_ID
-
 # Test direct search API
 curl "http://localhost:8001/search?query=test"
-
-# Verify question relates to document content
-# Lower similarity threshold in .env if needed
 ```
 
 #### 3. PDF Processing Failures
-**Symptoms**: Documents fail to process or extract text
+- Ensure PDF contains text (not just images)
+- Check file size is under limit (50MB default)
+- Verify PDF isn't password protected
 
-**Solutions**:
+#### 4. API Key Issues
+- Verify OpenRouter API key is correct in `.env`
+- Check API key has sufficient credits/permissions
+- Restart services after changing API key
+
+## 🧪 Testing Your System
+
+### Quick Test
 ```bash
-# Ensure PDF contains text (not just images)
-# Check file size is under limit (50MB default)
-# Verify PDF isn't password protected
+# Run comprehensive system test
+./test-system.sh
 
-# Test with simple text PDF first
-# Check processing logs
-docker-compose logs pdf-processor
+# Upload test document and interact
+./upload-and-test.sh
+
+# Interactive chat
+python3 chat.py
 ```
 
-#### 4. Memory/Performance Issues
-**Symptoms**: Services crash or slow responses
-
-**Solutions**:
+### API Testing
 ```bash
-# Increase Docker memory allocation (Docker Desktop settings)
-# Reduce concurrent processing:
-export CHUNK_SIZE=500
-export MAX_SEARCH_RESULTS=3
+# 1. Upload document
+curl -X POST -F "file=@your-document.pdf" http://localhost:8001/upload-pdf
 
-# Monitor resource usage
-docker stats
+# 2. Check processing status
+curl http://localhost:8001/documents
 
-# Scale down if needed
-docker-compose down
-docker-compose up -d --scale pdf-processor=1
+# 3. Ask questions via API
+curl -X POST http://localhost:5005/webhooks/rest/webhook \
+  -H "Content-Type: application/json" \
+  -d '{"sender": "test", "message": "What is this document about?"}'
 ```
 
-#### 5. ChromaDB Connection Issues
-**Symptoms**: "Could not connect to ChromaDB" errors
-
-**Solutions**:
-```bash
-# Check ChromaDB container health
-docker-compose logs chroma
-
-# Restart ChromaDB service
-docker-compose restart chroma
-
-# Verify network connectivity
-docker-compose exec pdf-processor ping chroma
-
-# Check version compatibility (using ChromaDB 0.4.15)
-```
-
-### Debug Commands
-
-#### Container Debugging
-```bash
-# Enter container for investigation
-docker-compose exec pdf-processor bash
-docker-compose exec rasa bash
-docker-compose exec chroma bash
-
-# Check internal network connectivity
-docker-compose exec pdf-processor curl http://chroma:8000/api/v1/heartbeat
-docker-compose exec rasa curl http://action-server:5055/health
-```
-
-#### Database Inspection
-```bash
-# Check ChromaDB collections
-curl http://localhost:8000/api/v1/collections
-
-# Check Redis keys
-docker-compose exec redis redis-cli keys "*"
-
-# Monitor real-time logs
-docker-compose logs -f --tail=50
-```
-
-## 🚀 Production Deployment
-
-### Security Checklist
-- [ ] Change default passwords in `.env`
-- [ ] Enable authentication on ChromaDB and Redis
-- [ ] Set up SSL/TLS certificates for HTTPS
-- [ ] Configure firewall rules for service ports
-- [ ] Use Docker secrets for sensitive data
-- [ ] Enable audit logging
-- [ ] Set up rate limiting on APIs
-- [ ] Configure CORS policies appropriately
-
-### Performance Optimization
-- [ ] Use external databases (PostgreSQL + pgvector)
-- [ ] Implement Redis clustering for caching
-- [ ] Add load balancing for multiple instances
-- [ ] Configure CDN for static assets
-- [ ] Set up monitoring and alerting (Prometheus + Grafana)
-- [ ] Implement proper backup strategies
-- [ ] Use container orchestration (Kubernetes)
-
-### Monitoring Setup
-```yaml
-# docker-compose.monitoring.yml
-version: '3.8'
-services:
-  prometheus:
-    image: prom/prometheus
-    ports:
-      - "9090:9090"
-    
-  grafana:
-    image: grafana/grafana
-    ports:
-      - "3000:3000"
-    
-  node-exporter:
-    image: prom/node-exporter
-    ports:
-      - "9100:9100"
-```
-
-## 📖 Example Conversations
+##  Example Conversations
 
 ### Basic Interaction
 ```
@@ -825,88 +487,39 @@ services:
 👤 User: What can you tell me about machine learning?
 🤖 Bot: Based on the uploaded documents, machine learning is a subset of artificial 
        intelligence that enables computer systems to automatically improve their 
-       performance on specific tasks through experience, without being explicitly 
-       programmed for each scenario. The documents describe several key approaches 
-       including supervised learning, unsupervised learning, and reinforcement learning, 
-       each suited for different types of problems and data structures.
+       performance on specific tasks through experience...
        
        📚 Sources: ML_Guide.pdf, AI_Research.pdf
 
-👤 User: Can you be more specific about neural networks?
-🤖 Bot: From your documents, neural networks are computational models inspired by 
-       biological neural networks in the human brain. They consist of interconnected 
-       nodes (neurons) organized in layers that process and transmit information. 
-       The documents explain that these networks learn by adjusting the strength of 
-       connections between neurons based on training data, making them particularly 
-       effective for pattern recognition, image classification, and natural language 
-       processing tasks.
-       
-       📚 Sources: Deep_Learning.pdf, Neural_Networks_Guide.pdf
-```
-
-### Document Management
-```
 👤 User: List my documents
 🤖 Bot: 📚 Your Uploaded Documents:
        
        ✅ ML_Guide.pdf (completed) - 45 chunks, uploaded 2 hours ago
        ✅ AI_Research.pdf (completed) - 32 chunks, uploaded 1 hour ago  
-       ⏳ Deep_Learning.pdf (processing) - 28% complete
        
-       Total: 3 documents, 77 processed chunks
-
-👤 User: Can you upload PDFs for me?
-🤖 Bot: I can't directly upload files, but I can guide you! Here's how:
-       
-       📋 Via API:
-       curl -X POST "http://localhost:8001/upload-pdf" -F "file=@your-file.pdf"
-       
-       📋 Via Python:
-       requests.post("http://localhost:8001/upload-pdf", files={"file": open("file.pdf", "rb")})
-       
-       Once uploaded, I'll automatically process and index the content for searching!
-
-👤 User: Clear all my documents
-🤖 Bot: I've cleared all documents from your knowledge base. Your document 
-       collection is now empty and ready for new uploads.
+       Total: 2 documents, 77 processed chunks
 ```
 
-### Advanced Queries
-```
-👤 User: Compare the approaches to deep learning mentioned in my documents
-🤖 Bot: Based on your documents, I found several approaches to deep learning:
-       
-       🔹 **Supervised Learning Approach** (ML_Guide.pdf):
-       Uses labeled training data to learn input-output mappings...
-       
-       🔹 **Unsupervised Learning Approach** (AI_Research.pdf):  
-       Discovers patterns in data without explicit labels...
-       
-       🔹 **Reinforcement Learning Approach** (Deep_Learning.pdf):
-       Learns through interaction with environment and rewards...
-       
-       📚 Sources: 3 documents, 8 relevant sections
+### Supported Questions
+- **Document Content**: "What does the document say about X?"
+- **Comparisons**: "Compare A and B from my documents"
+- **Document Management**: "List documents", "Clear all documents"
+- **General Help**: "What can you do?", "How do I upload files?"
 
-👤 User: What questions can I ask you?
-🤖 Bot: Great question! Here are the types of queries I can help with:
-       
-       📋 **Document Content Questions**:
-       - "What does the document say about X?"
-       - "Explain the concept of Y"
-       - "How does Z work according to the documents?"
-       
-       📋 **Comparative Analysis**:
-       - "Compare A and B from my documents"
-       - "What are the differences between X and Y?"
-       
-       📋 **Document Management**:
-       - "List my documents" 
-       - "Clear all documents"
-       - "What's in document X?"
-       
-       📋 **Factual Lookups**:
-       - "Define term X"
-       - "What are the key points about Y?"
-       
-       I work best with specific questions about content in your uploaded PDFs!
-```
+---
+
+## 🚀 Getting Started Checklist
+
+1. **✅ Prerequisites**: Docker & Docker Compose installed
+2. **✅ API Key**: Get free OpenRouter API key from [openrouter.ai](https://openrouter.ai)
+3. **✅ Configuration**: Add API key to `.env` file
+4. **✅ Start System**: Run `docker-compose up --build -d`
+5. **✅ Test**: Run `./test-system.sh` to verify everything works
+6. **✅ Upload**: Add your first PDF document
+7. **✅ Chat**: Start interacting with `python3 chat.py`
+
+**Need Help?** Check the troubleshooting section above or create an issue in the repository.
+
+---
+
+*Built by  @yassine-youcefi with ❤️ using Rasa, OpenRouter DeepSeek, ChromaDB, and Docker*
